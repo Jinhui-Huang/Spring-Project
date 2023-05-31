@@ -1,3 +1,15 @@
+<!-- TOC -->
+* [一, Spring系统架构](#一-spring系统架构)
+* [二, IoC思想和DI(依赖注入) 目标: 充分解耦](#二-ioc思想和di依赖注入-目标-充分解耦)
+  * [1.  IoC思想 --- (Inversion of Control)控制反转](#1-ioc思想-----inversion-of-control控制反转)
+  * [2. DI(依赖注入)](#2-di依赖注入)
+  * [3. IoC 获取方法](#3-ioc-获取方法)
+* [三, bean配置](#三-bean配置)
+  * [1. bean基础配置:](#1-bean基础配置)
+  * [2. bean的别名:](#2-bean的别名)
+  * [3. bean的作用范围:](#3-bean的作用范围)
+<!-- TOC -->
+
 # 一, Spring系统架构
 1. Core Container: 核心容器 --- Beans  Core  Context  SpEL
 2. Data Access: 数据访问/Data Integration: 数据集成
