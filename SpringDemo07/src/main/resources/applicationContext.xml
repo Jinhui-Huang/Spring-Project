@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="bookDao" class="com.itstudy.dao.impl.BookDaoImpl">
+        <property name="array">
+            <array>
+                <value>100</value>
+                <value>200</value>
+                <value>300</value>
+            </array>
+        </property>
+        <property name="list">
+            <list>
+                <value>tom</value>
+                <value>alen</value>
+                <value>jack</value>
+            </list>
+        </property>
+        <property name="set">
+            <set>
+                <value>tom</value>
+                <value>alen</value>
+                <value>jack</value>
+                <value>jack</value>
+            </set>
+        </property>
+        <property name="map">
+            <map>
+                <entry key="tom" value="上海"/>
+                <entry key="alen" value="北京"/>
+                <entry key="jack" value="广州"/>
+            </map>
+        </property>
+        <property name="properties">
+            <props>
+                <prop key="country">china</prop>
+                <prop key="province">jiangsu</prop>
+                <prop key="city">nanjing</prop>
+            </props>
+        </property>
+    </bean>
+
+
+
+
+</beans>

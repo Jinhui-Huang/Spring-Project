@@ -6,7 +6,15 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="SpringDemo08_datasource" />
+        <module name="SpringDemo09" />
+        <module name="SpringDemo03" />
+        <module name="SpringDemo02" />
         <module name="SpringDemo01" />
+        <module name="SpringDemo07" />
+        <module name="SpringDemo06" />
+        <module name="SpringDemo05" />
+        <module name="SpringDemo04" />
       </profile>
     </annotationProcessing>
   </component>

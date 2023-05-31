@@ -5,10 +5,18 @@
     <option name="originalFiles">
       <list>
         <option value="$PROJECT_DIR$/SpringDemo01/pom.xml" />
+        <option value="$PROJECT_DIR$/SpringDemo02/pom.xml" />
+        <option value="$PROJECT_DIR$/SpringDemo03/pom.xml" />
+        <option value="$PROJECT_DIR$/SpringDemo04/pom.xml" />
+        <option value="$PROJECT_DIR$/SpringDemo05/pom.xml" />
+        <option value="$PROJECT_DIR$/SpringDemo06/pom.xml" />
+        <option value="$PROJECT_DIR$/SpringDemo07/pom.xml" />
+        <option value="$PROJECT_DIR$/SpringDemo08_datasource/pom.xml" />
+        <option value="$PROJECT_DIR$/SpringDemo09/pom.xml" />
       </list>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_11">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" project-jdk-name="corretto-11" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>
 </project>
