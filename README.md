@@ -45,8 +45,15 @@ IoC容器负责对象的创建, 初始化等一系列工作, 被创建或被管�
 ## 3. bean的作用范围:
 spring创造出的对象是单例的, 对象只有一个
 ```java
-   System.out.println(bookService1); //@865dd6
-   System.out.println(bookService2); //@865dd6
+class App {
+    public static void main(String[] args) {
+        ApplicationContext ctx = new ClassPathXmlApplicationContext("applicationContext.xml");
+        BookService bookService1 = (BookService) ctx.getBean("bookService");
+        BookService bookService2 = (BookService) ctx.getBean("bookService");
+        System.out.println(bookService1); //@865dd6
+        System.out.println(bookService2); //@865dd6
+    }
+}
 ```
 
 通过修改bean的scope属性 scope="prototype" 可以产生不同的对象@4da4253
