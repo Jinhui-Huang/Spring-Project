@@ -15,10 +15,12 @@ public class App {
 
         BookService bookService1 = (BookService) ctx.getBean("bookService");
         BookService bookService2 = (BookService) ctx.getBean("bookService");
+        BookService bookService3 = (BookService) ctx.getBean("bookService");
         bookService1.save();
         //spring创造出的对象是单例的, 对象只有一个
         System.out.println(bookService1); //@865dd6
         System.out.println(bookService2); //@865dd6
+        System.out.println(bookService3);
 
         //通过修改bean的scope属性 scope="prototype" 可以产生不同的对象@4da4253
 
