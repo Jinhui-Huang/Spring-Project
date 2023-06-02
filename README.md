@@ -721,7 +721,7 @@ BookService bookService3 = ctx2.getBean(BookService.class);
 ```
 
 ## 3. 容器类层次结构
-<img alt="较为直观地描述了容器层次结构的接口继承结构" height="300px" src="E:\TEST\Spring-Project\容器结构图.png" title="容器类层次结构直观图" width="800px"/>
+<img alt="较为直观地描述了容器层次结构的接口继承结构" height="300px" src="容器结构图.png" title="容器类层次结构直观图" width="800px"/>
 
 ## 4. BeanFactory
 ```java
