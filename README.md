@@ -282,22 +282,19 @@ public class BookDaoImpl implements BookDao{
     <property name="databaseName" value="mysql"/>
     <property name="connectionNum" value="10"/>
 </bean>
-<bean id="userDao" class="com.itstudy.dao.impl.UserDaoImpl"/>
-<bean id="bookService" class="com.itstudy.service.impl.BookServiceImpl">
-<property name="bookDao" ref="bookDao"/>
-<property name="userDao" ref="userDao"/>
-</bean>
 ```
 
 最后通过获取容器进行程序运行
 
 ```java
+import com.itstudy.dao.BookDao;
+
 public class AppForDISet {
-    public static void main(String[] args) {
-        ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext("applicationContext.xml");
-        BookService bookService = (BookService) ctx.getBean("bookService");
-        bookService.save();
-    }
+  public static void main(String[] args) {
+    ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext("applicationContext.xml");
+    BookDao bookDao = (BookDao) ctx.getBean("bookDao");
+    bookDao.save();
+  }
 }
 ```
 
@@ -721,7 +718,7 @@ BookService bookService3 = ctx2.getBean(BookService.class);
 ```
 
 ## 3. 容器类层次结构
-<img alt="较为直观地描述了容器层次结构的接口继承结构" height="300px" src="E:\TEST\Spring-Project\容器结构图.png" title="容器类层次结构直观图" width="800px"/>
+<img alt="较为直观地描述了容器层次结构的接口继承结构" height="300px" src="容器结构图.png" title="容器类层次结构直观图" width="800px"/>
 
 ## 4. BeanFactory
 ```java
@@ -736,5 +733,369 @@ public class AppForBeanFactory {
 ```
 BeanFactory在初始化的bean时有延迟加载构造器的特性, 而ApplicationContext初始化bean是立即加载构造器,
 也可以通过修改bean属性的 lazy-init="true" 来实现延迟加载
+
+# 七. 注解开发
+## 1. 注解开发定义bean
+使用@Component定义bean, public class上方定义,可以写bean的名称也可以不写
+```java
+@Component("bookDao")
+public class BookDaoImpl implements BookDao{
+
+    @Override
+    public void save() {
+        System.out.println("book dao save...");
+    }
+}
+@Component
+public class BookServiceImpl implements BookService {
+    
+}
+```
+如果bean的名称不写的话获取bean不能通过名称获取, 而是需要通过bean的类字节码文件获取
+```
+BookService bookService = ctx.getBean(BookService.class);
+```
+核心配置文件中通过组件扫描加载bean, 扫描包里所有的bean, 一般写组织域名就行
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context  http://www.springframework.org/schema/context/spring-context.xsd">
+  
+    <context:component-scan base-package="com.itstudy"/>
+  
+</beans>
+```
+@Component在不同业务可以用别名
+- 服务层用@Service
+- 数据层用@Repository
+- 表现层用@Controller
+- 
+## 2. 纯注解开发
+Spring3.0升级了纯注解开发模式, 使用Java类替代配置文件, 开启了Spring快速开发赛道
+
+新建java类SpringConfig.java ,注解上
+- @Configuration 用于设定当前类为配置类
+- @ComponentScan("com.itstudy") 用于设定扫描路径, 要写多个包名得用大括号包起来, 数组的形式传进去
+
+如下:
+```java
+//Configuration代表了配置文件里的
+/*
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:context="http://www.springframework.org/schema/context"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context  http://www.springframework.org/schema/context/spring-context.xsd">
+</beans>
+*/
+
+//ComponentScan("com.itstudy")代表了配置文件里的
+//<context:component-scan base-package="com.itstudy"/>
+
+@Configuration
+@ComponentScan("com.itstudy")
+public class SpringConfig {
+
+}
+```
+这样可以完全拜托配置文件, 最后在应用层里将将调用方式改为AnnotationConfigApplicationContext(配置类.class)获取
+
+如下:
+```java
+public class AppForAnnotation {
+    public static void main(String[] args) {
+        //纯注解文件
+        ApplicationContext ctx = new AnnotationConfigApplicationContext(SpringConfig.class);
+        BookDao bookDao = (BookDao) ctx.getBean("bookDao");
+        System.out.println(bookDao);
+        bookDao.save();
+        BookService bookService = ctx.getBean(BookService.class);
+        System.out.println(bookService);
+
+    }
+}
+```
+
+## 3. 注解开发bean的作用范围
+非单例的注解: 直接在类上注解@Scope("prototype"), 就会生成非单例
+
+```java
+@Service
+@Scope("prototype")
+public class BookServiceImpl implements BookService {
+}
+```
+结果生成对象的地址可以不同了
+```
+com.itstudy.service.impl.BookServiceImpl@27f981c6
+com.itstudy.service.impl.BookServiceImpl@1b11171f
+```
+
+## 4. 注解开发bean的生命周期
+直接在需要管理生命周期的bean类里, 对自定义的初始化, 销毁方法进行注解, 分别注解上:
+- @PostConstruct  构造方法后
+- @PreDestroy  彻底销毁前
+```java
+@Repository("bookDao")
+@Scope()
+public class BookDaoImpl implements BookDao{
+    @Override
+    public void save() {
+        System.out.println("book dao save...");
+    }
+    @PostConstruct
+    public void init() {
+        System.out.println("book dao init...");
+    }
+    @PreDestroy
+    public void destroy() {
+        System.out.println("book dao destroy...");
+    }
+}
+```
+实现类里调用
+```java
+public class AppForAnnotation {
+  public static void main(String[] args) {
+      AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(SpringConfig.class);
+      BookDao bookDao = (BookDao) ctx.getBean("bookDao");
+      System.out.println(bookDao);
+      bookDao.save();
+      ctx.registerShutdownHook();
+  }
+}
+```
+运行结果
+```
+book dao init...
+com.itstudy.dao.impl.BookDaoImpl@70e9c95d
+book dao save...
+book dao destroy...
+```
+## 5. 注解开发bean的注入依赖
+### (1).复杂属性注解自动装配:
+
+直接在需要调用的成员上注解@Autowired, 即可自动注入, 本质上是通过暴力反射对应属性来为私有属性初始化数据, 所以在类里可以不写set方法,
+自动装配需要无参构造方法, 而且没有给调用的bean起名默认是按类型来自动装配的
+```java
+@Service
+public class BookServiceImpl implements BookService {
+  //5, 删除业务层中创建的对象
+  @Autowired
+  private BookDao bookDao;
+  @Override
+  public void save() {
+    System.out.println("book service save...");
+    bookDao.save();
+  }
+}
+```
+运行结果:
+```
+com.itstudy.service.impl.BookServiceImpl@e350b40
+book service save...
+book dao save...
+```
+如果有多个相同类型的对象, 默认按类型就失效了, 需要按名字来自动装配, 得给bean得类起名
+@Repository("BookDao")
+```java
+@Repository("bookDao")
+public class BookDaoImpl implements BookDao{
+}
+
+@Repository("bookDao2")
+public class BookDaoImpl2 implements BookDao{
+}
+```
+服务层里调用时根据你写的成员名字: "private BookDao bookDao2;" 来调用BookDaoImpl2类
+
+当然这种需要自己根据注解名字来确定成员的方式过于麻烦, 也可以通过加上@Qualifier("bookDao2")来绑定对应的类, 
+服务层里的成员名就可以按自己的想法来起名
+```java
+@Service
+public class BookServiceImpl implements BookService {
+    //5, 删除业务层中创建的对象
+    @Autowired
+    @Qualifier("bookDao2")
+    private BookDao bookDao;
+    @Override
+    public void save() {
+        System.out.println("book service save...");
+        bookDao.save();
+    }
+
+}
+```
+结果是BookDaoImpl2里的save方法调用
+```
+com.itstudy.service.impl.BookServiceImpl@6c1a5b54
+book service save...
+book dao save...2
+```
+注意: @Qualifier("bookDao2")必须依赖@Autowired来使用
+
+### (2). 简单属性注解自动装配
+直接在简单属性成员变量上注解@value("itstudy6666"), 并提供对应的值
+```    
+@Value("itstudy6666")
+private String name;
+```
+这样注解提供对应的值的优势在于, 可以通过配置文件来给它赋值, 也就可以从外部提供对应的值
+
+配置文件value.properties
+```properties
+name=itstudy666
+```
+然后在配置类SpringConfig.class里加上注解@PropertySource("value.properties")
+```java
+@Configuration
+@ComponentScan("com.itstudy")
+@PropertySource("value.properties")
+public class SpringConfig {
+}
+```
+最后将@value()括号里加上@value("${name}"), 运行结果一样, 
+与xml文件里配置不同, 不支持通配符*.properties, 但可以加上classpath:
+```
+@PropertySource("class:value.properties")
+```
+## 6. 注解开发bean管理第三方bean
+### (1). 第三方bean管理
+依然导包druid, 详细请看往期学习内容
+
+然后在SpringConfig里配置获取第三方bean的方法, 因为我们无法在第三包里给它写上名称, 只能把它获取出来再命名
+注解方法返回的是一个bean, 可以写名也可以不写
+```java
+@Configuration
+public class SpringConfig {
+
+    //1, 定义一个方法获得要管理的bean
+    //2, 添加@Bean表示返回的是一个Bean
+    @Bean
+    public DataSource dataSource() {
+        DruidDataSource ds = new DruidDataSource();
+        ds.setDriverClassName("com.mysql.jdbc.Driver");
+        ds.setUrl("jdbc:mysql://localhost:3306/spring_db");
+        ds.setUsername("root");
+        ds.setPassword("root");
+        return ds;
+    }
+}
+```
+然后实现层app里进行调用
+```java
+public class App {
+    public static void main(String[] args) {
+        AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(SpringConfig.class);
+        DataSource dataSource = ctx.getBean(DataSource.class);
+        System.out.println(dataSource);
+
+    }
+}
+```
+结果如下
+```
+{
+	CreateTime:"2023-06-03 16:00:30",
+	ActiveCount:0,
+	PoolingCount:0,
+	CreateCount:0,
+	DestroyCount:0,
+	CloseCount:0,
+	ConnectCount:0,
+	Connections:[
+	]
+}
+```
+对于这种第三方bean获取方法建议不要写在一个SpringConfig配置文件里, 写在自己单独的配置文件里如:JdbcConfig配置文件
+```java
+@Configuration
+public class JdbcConfig {
+    //获取bean的方法, 如上druid的获取
+}
+```
+只需要在SpringConfig配置文件里注解导入下JdbcConfig配置文件即可, 结果依然可以实现
+```java
+@Configuration
+//@ComponentScan("com.itstudy.config") 不推荐
+@Import({JdbcConfig.class}) //推荐, 可以清楚看到导入了哪些配置文件
+public class SpringConfig {
+}
+```
+### (2). 第三方bean依赖注入
+简单类型: 
+```java
+@Configuration
+public class JdbcConfig {
+  @Value("com.mysql.jdbc.Driver")
+  private String driver;
+
+  @Value("jdbc:mysql://localhost:3306/spring_db")
+  private String url;
+
+  @Value("root")
+  private String username;
+
+  @Value("root")
+  private String password;
+
+
+  //1, 定义一个方法获得要管理的bean
+  //2, 添加@Bean表示返回的是一个Bean
+  @Bean
+  public DataSource dataSource() {
+    DruidDataSource ds = new DruidDataSource();
+    ds.setDriverClassName(driver);
+    ds.setUrl(url);
+    ds.setUsername(username);
+    ds.setPassword(password);
+    return ds;
+  }
+}
+```
+运行结果和上面一样
+
+复杂类型(注入方式非常特殊):
+- 首先声明注解下bean的类文件
+```java
+@Repository
+public class BookDaoImpl implements BookDao {
+}
+```
+- 然后SpringConfig里注解扫描要注入的类文件BookDaoImpl
+```java
+@Configuration
+@ComponentScan("com.itstudy")
+@Import({JdbcConfig.class})
+public class SpringConfig {
+}
+```
+- 最后在Jdbc配置文件的获取bean方法里添加下BookDao类的形参, Spring底层会自动执行自动装配
+```
+@Bean
+public DataSource dataSource(BookDao bookDao) {
+        System.out.println(bookDao);
+        .....
+}
+```
+结果打印出bookDao的对象地址
+```
+com.itstudy.dao.impl.BookDaoImpl@69e153c5
+```
+引用类型注入只要为获取bean定义方法设置形参即可, 容器会根据类型自动装配
+
+## 7. XML配置对比注解配置
+<img height="400px" src="xml对比注解配置.png" width="800px"/>
+
+图片来自B站黑马程序员的[Spring-25-注解开发总结](https://www.bilibili.com/video/BV1Fi4y1S7ix?p=27&spm_id_from=pageDriver&vd_source=b1a441fcb369fd950d8bf49580ca3248 
+"https://www.bilibili.com/video/BV1Fi4y1S7ix?p=27&spm_id_from=pageDriver&vd_source=b1a441fcb369fd950d8bf49580ca3248") 
+
+
 ___
 

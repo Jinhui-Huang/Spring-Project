@@ -2,12 +2,13 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/SpringDemo03/SpringDemo03.iml" filepath="$PROJECT_DIR$/SpringDemo03/SpringDemo03.iml" />
       <module fileurl="file://$PROJECT_DIR$/SpringDemo05/SpringDemo05.iml" filepath="$PROJECT_DIR$/SpringDemo05/SpringDemo05.iml" />
       <module fileurl="file://$PROJECT_DIR$/SpringDemo06/SpringDemo06.iml" filepath="$PROJECT_DIR$/SpringDemo06/SpringDemo06.iml" />
       <module fileurl="file://$PROJECT_DIR$/SpringDemo07.iml" filepath="$PROJECT_DIR$/SpringDemo07.iml" />
       <module fileurl="file://$PROJECT_DIR$/SpringDemo08_datasource.iml" filepath="$PROJECT_DIR$/SpringDemo08_datasource.iml" />
       <module fileurl="file://$PROJECT_DIR$/SpringDemo09.iml" filepath="$PROJECT_DIR$/SpringDemo09.iml" />
+      <module fileurl="file://$PROJECT_DIR$/SpringDemo10.iml" filepath="$PROJECT_DIR$/SpringDemo10.iml" />
+      <module fileurl="file://$PROJECT_DIR$/SpringDemo12.iml" filepath="$PROJECT_DIR$/SpringDemo12.iml" />
     </modules>
   </component>
 </project>

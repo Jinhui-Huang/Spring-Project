@@ -8,9 +8,12 @@
         <outputRelativeToContentRoot value="true" />
         <module name="SpringDemo08_datasource" />
         <module name="SpringDemo09" />
+        <module name="SpringDemo10" />
         <module name="SpringDemo03" />
         <module name="SpringDemo02" />
         <module name="SpringDemo01" />
+        <module name="SpringDemo12" />
+        <module name="SpringDemo11" />
         <module name="SpringDemo07" />
         <module name="SpringDemo06" />
         <module name="SpringDemo05" />
