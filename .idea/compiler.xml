@@ -2,15 +2,15 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
       <profile name="Maven default annotation processors profile" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="SpringDemo08_datasource" />
         <module name="SpringDemo09" />
-        <module name="SpringDemo10" />
         <module name="SpringDemo03" />
         <module name="SpringDemo02" />
+        <module name="SpringDemo14_AOP" />
         <module name="SpringDemo01" />
         <module name="SpringDemo12" />
         <module name="SpringDemo11" />
@@ -18,6 +18,9 @@
         <module name="SpringDemo06" />
         <module name="SpringDemo05" />
         <module name="SpringDemo04" />
+        <module name="SpringDemo08_datasource" />
+        <module name="SpringDemo10" />
+        <module name="SpringDemo13_mybatis" />
       </profile>
     </annotationProcessing>
   </component>
