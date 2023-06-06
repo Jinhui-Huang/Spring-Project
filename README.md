@@ -38,6 +38,23 @@
     * [(1). 第三方bean管理](#1-第三方bean管理)
     * [(2). 第三方bean依赖注入](#2-第三方bean依赖注入)
   * [7. XML配置对比注解配置](#7-xml配置对比注解配置)
+* [八. spring整合mybatis和junit](#八-spring整合mybatis和junit)
+  * [1. spring整合mybatis](#1-spring整合mybatis)
+  * [2. spring整合junit](#2-spring整合junit)
+* [九. Spring-AOP](#九-spring-aop)
+  * [1. AOP简介](#1-aop简介)
+  * [2. AOP核心概念](#2-aop核心概念)
+  * [3. AOP入门案例](#3-aop入门案例)
+  * [4. AOP工作流程](#4-aop工作流程)
+  * [5. AOP切入点表达式](#5-aop切入点表达式)
+    * [(1). 语法格式](#1-语法格式)
+    * [(2). 通配符](#2-通配符)
+    * [(3). 书写技巧](#3-书写技巧)
+  * [6. AOP通知类型](#6-aop通知类型)
+  * [7. AOP通知获取数据](#7-aop通知获取数据)
+    * [(1). 获取参数](#1-获取参数)
+    * [(2). 获取返回值](#2-获取返回值)
+    * [(3). 获取异常](#3-获取异常)
 <!-- TOC -->
 
 # 一. Spring系统架构
@@ -730,9 +747,11 @@ BookService bookService3 = ctx2.getBean(BookService.class);
 ```
 
 ## 3. 容器类层次结构
+
 <img alt="较为直观地描述了容器层次结构的接口继承结构" height="300px" src="容器结构图.png" title="容器类层次结构直观图" width="800px"/>
 
 ## 4. BeanFactory
+
 ```java
 public class AppForBeanFactory {
     public static void main(String[] args) {
@@ -743,12 +762,16 @@ public class AppForBeanFactory {
     }
 }
 ```
+
 BeanFactory在初始化的bean时有延迟加载构造器的特性, 而ApplicationContext初始化bean是立即加载构造器,
 也可以通过修改bean属性的 lazy-init="true" 来实现延迟加载
 
 # 七. 注解开发
+
 ## 1. 注解开发定义bean
+
 使用@Component定义bean, public class上方定义,可以写bean的名称也可以不写
+
 ```java
 @Component("bookDao")
 public class BookDaoImpl implements BookDao{
@@ -763,11 +786,15 @@ public class BookServiceImpl implements BookService {
     
 }
 ```
+
 如果bean的名称不写的话获取bean不能通过名称获取, 而是需要通过bean的类字节码文件获取
+
 ```
 BookService bookService = ctx.getBean(BookService.class);
 ```
+
 核心配置文件中通过组件扫描加载bean, 扫描包里所有的bean, 一般写组织域名就行
+
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
@@ -781,19 +808,25 @@ BookService bookService = ctx.getBean(BookService.class);
   
 </beans>
 ```
+
 @Component在不同业务可以用别名
+
 - 服务层用@Service
 - 数据层用@Repository
 - 表现层用@Controller
-- 
+-
+
 ## 2. 纯注解开发
+
 Spring3.0升级了纯注解开发模式, 使用Java类替代配置文件, 开启了Spring快速开发赛道
 
 新建java类SpringConfig.java ,注解上
+
 - @Configuration 用于设定当前类为配置类
 - @ComponentScan("com.itstudy") 用于设定扫描路径, 要写多个包名得用大括号包起来, 数组的形式传进去
 
 如下:
+
 ```java
 //Configuration代表了配置文件里的
 /*
@@ -816,9 +849,11 @@ public class SpringConfig {
 
 }
 ```
+
 这样可以完全拜托配置文件, 最后在应用层里将将调用方式改为AnnotationConfigApplicationContext(配置类.class)获取
 
 如下:
+
 ```java
 public class AppForAnnotation {
     public static void main(String[] args) {
@@ -835,6 +870,7 @@ public class AppForAnnotation {
 ```
 
 ## 3. 注解开发bean的作用范围
+
 非单例的注解: 直接在类上注解@Scope("prototype"), 就会生成非单例
 
 ```java
@@ -843,16 +879,21 @@ public class AppForAnnotation {
 public class BookServiceImpl implements BookService {
 }
 ```
+
 结果生成对象的地址可以不同了
+
 ```
 com.itstudy.service.impl.BookServiceImpl@27f981c6
 com.itstudy.service.impl.BookServiceImpl@1b11171f
 ```
 
 ## 4. 注解开发bean的生命周期
+
 直接在需要管理生命周期的bean类里, 对自定义的初始化, 销毁方法进行注解, 分别注解上:
-- @PostConstruct  构造方法后
-- @PreDestroy  彻底销毁前
+
+- @PostConstruct 构造方法后
+- @PreDestroy 彻底销毁前
+
 ```java
 @Repository("bookDao")
 @Scope()
@@ -871,7 +912,9 @@ public class BookDaoImpl implements BookDao{
     }
 }
 ```
+
 实现类里调用
+
 ```java
 public class AppForAnnotation {
   public static void main(String[] args) {
@@ -883,18 +926,23 @@ public class AppForAnnotation {
   }
 }
 ```
+
 运行结果
+
 ```
 book dao init...
 com.itstudy.dao.impl.BookDaoImpl@70e9c95d
 book dao save...
 book dao destroy...
 ```
+
 ## 5. 注解开发bean的注入依赖
+
 ### (1).复杂属性注解自动装配:
 
 直接在需要调用的成员上注解@Autowired, 即可自动注入, 本质上是通过暴力反射对应属性来为私有属性初始化数据, 所以在类里可以不写set方法,
 自动装配需要无参构造方法, 而且没有给调用的bean起名默认是按类型来自动装配的
+
 ```java
 @Service
 public class BookServiceImpl implements BookService {
@@ -908,14 +956,18 @@ public class BookServiceImpl implements BookService {
   }
 }
 ```
+
 运行结果:
+
 ```
 com.itstudy.service.impl.BookServiceImpl@e350b40
 book service save...
 book dao save...
 ```
+
 如果有多个相同类型的对象, 默认按类型就失效了, 需要按名字来自动装配, 得给bean得类起名
 @Repository("BookDao")
+
 ```java
 @Repository("bookDao")
 public class BookDaoImpl implements BookDao{
@@ -925,10 +977,12 @@ public class BookDaoImpl implements BookDao{
 public class BookDaoImpl2 implements BookDao{
 }
 ```
+
 服务层里调用时根据你写的成员名字: "private BookDao bookDao2;" 来调用BookDaoImpl2类
 
-当然这种需要自己根据注解名字来确定成员的方式过于麻烦, 也可以通过加上@Qualifier("bookDao2")来绑定对应的类, 
+当然这种需要自己根据注解名字来确定成员的方式过于麻烦, 也可以通过加上@Qualifier("bookDao2")来绑定对应的类,
 服务层里的成员名就可以按自己的想法来起名
+
 ```java
 @Service
 public class BookServiceImpl implements BookService {
@@ -944,27 +998,36 @@ public class BookServiceImpl implements BookService {
 
 }
 ```
+
 结果是BookDaoImpl2里的save方法调用
+
 ```
 com.itstudy.service.impl.BookServiceImpl@6c1a5b54
 book service save...
 book dao save...2
 ```
+
 注意: @Qualifier("bookDao2")必须依赖@Autowired来使用
 
 ### (2). 简单属性注解自动装配
+
 直接在简单属性成员变量上注解@value("itstudy6666"), 并提供对应的值
+
 ```    
 @Value("itstudy6666")
 private String name;
 ```
+
 这样注解提供对应的值的优势在于, 可以通过配置文件来给它赋值, 也就可以从外部提供对应的值
 
 配置文件value.properties
+
 ```properties
 name=itstudy666
 ```
+
 然后在配置类SpringConfig.class里加上注解@PropertySource("value.properties")
+
 ```java
 @Configuration
 @ComponentScan("com.itstudy")
@@ -972,17 +1035,23 @@ name=itstudy666
 public class SpringConfig {
 }
 ```
-最后将@value()括号里加上@value("${name}"), 运行结果一样, 
+
+最后将@value()括号里加上@value("${name}"), 运行结果一样,
 与xml文件里配置不同, 不支持通配符*.properties, 但可以加上classpath:
+
 ```
 @PropertySource("class:value.properties")
 ```
+
 ## 6. 注解开发bean管理第三方bean
+
 ### (1). 第三方bean管理
+
 依然导包druid, 详细请看往期学习内容
 
 然后在SpringConfig里配置获取第三方bean的方法, 因为我们无法在第三包里给它写上名称, 只能把它获取出来再命名
 注解方法返回的是一个bean, 可以写名也可以不写
+
 ```java
 @Configuration
 public class SpringConfig {
@@ -1000,7 +1069,9 @@ public class SpringConfig {
     }
 }
 ```
+
 然后实现层app里进行调用
+
 ```java
 public class App {
     public static void main(String[] args) {
@@ -1011,7 +1082,9 @@ public class App {
     }
 }
 ```
+
 结果如下
+
 ```
 {
 	CreateTime:"2023-06-03 16:00:30",
@@ -1025,14 +1098,18 @@ public class App {
 	]
 }
 ```
+
 对于这种第三方bean获取方法建议不要写在一个SpringConfig配置文件里, 写在自己单独的配置文件里如:JdbcConfig配置文件
+
 ```java
 @Configuration
 public class JdbcConfig {
     //获取bean的方法, 如上druid的获取
 }
 ```
+
 只需要在SpringConfig配置文件里注解导入下JdbcConfig配置文件即可, 结果依然可以实现
+
 ```java
 @Configuration
 //@ComponentScan("com.itstudy.config") 不推荐
@@ -1040,8 +1117,11 @@ public class JdbcConfig {
 public class SpringConfig {
 }
 ```
+
 ### (2). 第三方bean依赖注入
-简单类型: 
+
+简单类型:
+
 ```java
 @Configuration
 public class JdbcConfig {
@@ -1071,16 +1151,21 @@ public class JdbcConfig {
   }
 }
 ```
+
 运行结果和上面一样
 
 复杂类型(注入方式非常特殊):
+
 - 首先声明注解下bean的类文件
+
 ```java
 @Repository
 public class BookDaoImpl implements BookDao {
 }
 ```
+
 - 然后SpringConfig里注解扫描要注入的类文件BookDaoImpl
+
 ```java
 @Configuration
 @ComponentScan("com.itstudy")
@@ -1088,7 +1173,9 @@ public class BookDaoImpl implements BookDao {
 public class SpringConfig {
 }
 ```
+
 - 最后在Jdbc配置文件的获取bean方法里添加下BookDao类的形参, Spring底层会自动执行自动装配
+
 ```
 @Bean
 public DataSource dataSource(BookDao bookDao) {
@@ -1096,22 +1183,29 @@ public DataSource dataSource(BookDao bookDao) {
         .....
 }
 ```
+
 结果打印出bookDao的对象地址
+
 ```
 com.itstudy.dao.impl.BookDaoImpl@69e153c5
 ```
+
 引用类型注入只要为获取bean定义方法设置形参即可, 容器会根据类型自动装配
 
 ## 7. XML配置对比注解配置
+
 ![](xml对比注解配置.png)
 
-图片来自B站黑马程序员的[Spring-25-注解开发总结](https://www.bilibili.com/video/BV1Fi4y1S7ix?p=27&spm_id_from=pageDriver&vd_source=b1a441fcb369fd950d8bf49580ca3248 
-"https://www.bilibili.com/video/BV1Fi4y1S7ix?p=27&spm_id_from=pageDriver&vd_source=b1a441fcb369fd950d8bf49580ca3248") 
+图片来自B站黑马程序员的[Spring-25-注解开发总结](https://www.bilibili.com/video/BV1Fi4y1S7ix?p=27&spm_id_from=pageDriver&vd_source=b1a441fcb369fd950d8bf49580ca3248
+"https://www.bilibili.com/video/BV1Fi4y1S7ix?p=27&spm_id_from=pageDriver&vd_source=b1a441fcb369fd950d8bf49580ca3248")
 
 # 八. spring整合mybatis和junit
+
 ## 1. spring整合mybatis
+
 首先整合mybatis用于spring的坐标(pom.xml),
 下面坐标缺一不可
+
 ```xml
 
 <dependency>
@@ -1150,9 +1244,11 @@ com.itstudy.dao.impl.BookDaoImpl@69e153c5
 <version>1.18.26</version>
 </dependency>
 ```
+
 采用注解模式开发
 
 首先准备好封装的实体类Account
+
 ```java
 @Data
 @NoArgsConstructor
@@ -1172,7 +1268,9 @@ public class Account {
 
 }
 ```
+
 编写要查询sql语句的Mapper接口AccountDao
+
 ```java
 /*
 * 主要写查询语句
@@ -1202,7 +1300,9 @@ public interface AccountDao {
 
 }
 ```
+
 现在开始准备数据库连接池即JDBC的连接对象配置---JdbcConfig, 数据库的一些属性从外部jdbc.properties导入, 在主配置文件中导入
+
 ```java
 public class JdbcConfig {
     @Value("${jdbc.driver}")
@@ -1231,7 +1331,9 @@ public class JdbcConfig {
     }
 }
 ```
+
 数据库对象准备好后, 开始配备MyBatisConfig, 连接数据库生成数据库连接池, 同时进行需要查询的sql语句Mapper接口映射
+
 ```java
 public class MyBatisConfig {
 
@@ -1260,8 +1362,11 @@ public class MyBatisConfig {
 
 }
 ```
-最后准备基础的配置文件SpringConfig, 引入bean所在的包, mybatis用于jdbc连接的配置文件[jdbc.properties](SpringDemo13_mybatis%2Fsrc%2Fmain%2Fresources%2Fjdbc.properties), 
+
+最后准备基础的配置文件SpringConfig, 引入bean所在的包,
+mybatis用于jdbc连接的配置文件[jdbc.properties](SpringDemo13_mybatis%2Fsrc%2Fmain%2Fresources%2Fjdbc.properties),
 导入JdbcConfig和MyBatisConfig
+
 ```java
 @Configuration
 @ComponentScan("com.itstudy")
@@ -1271,7 +1376,9 @@ public class SpringConfig {
 
 }
 ```
+
 设置服务层对象AccountServiceImpl.java, 自动装配注入Mapper依赖来执行sql语句
+
 ```java
 @Service
 public class AccountServiceImpl implements AccountService {
@@ -1300,7 +1407,9 @@ public class AccountServiceImpl implements AccountService {
     }
 }
 ```
+
 最后在测试类AppTestForMybatis.java里调用服务层的bean来执行服务层里的方法, 只进行了插入单条数据和获取全部数据的方法
+
 ```java
 public class AppTestForMybatis {
     public static void main(String[] args) {
@@ -1327,7 +1436,9 @@ public class AppTestForMybatis {
 }
 
 ```
+
 测试结果如下:
+
 ```
 Loading class `com.mysql.jdbc.Driver'. This is deprecated. The new driver class is `com.mysql.cj.jdbc.Driver'. The driver is automatically registered via the SPI and manual loading of the driver class is generally unnecessary.
 6月 05, 2023 3:52:55 下午 com.alibaba.druid.support.logging.JakartaCommonsLoggingImpl info
@@ -1340,11 +1451,14 @@ Account(id=17, username=chenyouliang, password=123456, name=陈友谅, gender=1,
 Account(id=18, username=Tom, password=123456, name=汤姆, gender=1, image=1.jpg, job=1, entrydate=2000-01-01, deptId=1, createTime=2023-06-04T20:51:06, updateTime=2023-06-04T20:51:06)
 Account(id=21, username=tom2, password=null, name=汤姆2, gender=1, image=2.jpg, job=2, entrydate=2010-01-01, deptId=null, createTime=2023-06-05T15:52:55, updateTime=2023-06-05T15:52:55)
 ```
+
 结果显示插入成功, 返回全部数据也没有问题
 ___
 
 ## 2. spring整合junit
+
 第一步依然导包
+
 ```xml
 
 <dependency>
@@ -1360,11 +1474,13 @@ ___
   <version>5.3.27</version>
 </dependency>
 ```
+
 在测试类上注解上spring测试类运行器@RunWith(SpringJUnit4ClassRunner.class)
 
 注解上运行的环境即SpringConfig配置文件@ContextConfiguration(classes = SpringConfig.class)
 
 在需要测试的方法上打上@Test, 即可单独测试该方法
+
 ```java
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = SpringConfig.class)
@@ -1378,16 +1494,21 @@ public class AppTestByJunit {
     }
 }
 ```
+
 测试结果为返回一条员工数据
+
 ```
 6月 05, 2023 4:23:58 下午 com.alibaba.druid.support.logging.JakartaCommonsLoggingImpl info
 信息: {dataSource-1} inited
 Account(id=18, username=Tom, password=123456, name=汤姆, gender=1, image=1.jpg, job=1, entrydate=2000-01-01, deptId=1, createTime=2023-06-04T20:51:06, updateTime=2023-06-04T20:51:06)
 ```
+
 类运行器和上下文配置类在以后开发中几乎不会变.
 
-# 九.  Spring-AOP
+# 九. Spring-AOP
+
 ## 1. AOP简介
+
 - AOP(Aspect Oriented Programming)面向切面编程, 一种编程范式, 指导开发者如何组织程序结构
 
 - OOP(Object Oriented Programming)面向对象编程
@@ -1397,8 +1518,10 @@ AOP作用: 在不惊动原始设计的基础上为其进行功能增强
 Spring的理念: 无侵入式\无入侵式编程
 
 ## 2. AOP核心概念
+
 ![](AOP核心概念.PNG)
 图片来自B站黑马程序员([SSM-AOP简介](https://www.bilibili.com/video/BV1Fi4y1S7ix?p=31&vd_source=b1a441fcb369fd950d8bf49580ca3248))
+
 - 通知(Advice): 所要增加功能的方法
 - 切入点(Pointcut): 需要增加该功能的方法, 必须定义成切入点
 - 连接点(JoinPoint): 可以增加该功能的方法, 即程序中任意位置的方法, 连接点包含着切入点
@@ -1406,10 +1529,13 @@ Spring的理念: 无侵入式\无入侵式编程
 - 切面(Aspect): 连接通知和切入点之间的桥梁, 描述两者之间的关系
 
 ## 3. AOP入门案例
+
 开发模式: 注解
 
 坐标导入:
+
 ```xml
+
 <dependencies>
     <dependency>
         <groupId>org.springframework</groupId>
@@ -1425,7 +1551,9 @@ Spring的理念: 无侵入式\无入侵式编程
 </dependencies>
 
 ```
+
 编写共性功能(通知类与通知);
+
 ```java
 /*
  * 通知类
@@ -1440,54 +1568,64 @@ public class MyAdvice {
     }
 }
 ```
+
 定义切入点(依然写在通知类里):
+
 ```java
 /*
-* 通知类
-* */
+ * 通知类
+ * */
 public class MyAdvice {
     /*
-    * 描述切入点@Pointcut("execution(void com.itstudy.dao.BookDao.update())")
-    * @Point("execution(切入点方法返回类型 切入点包名.类名.方法名)")
-    * 切入点定义依托在一个不具有实际意义的方法上进行, 即无参数, 无返回值, 方法体无实际逻辑
-    * */
+     * 描述切入点@Pointcut("execution(void com.itstudy.dao.BookDao.update())")
+     * @Point("execution(切入点方法返回类型 切入点包名.类名.方法名)")
+     * 切入点定义依托在一个不具有实际意义的方法上进行, 即无参数, 无返回值, 方法体无实际逻辑
+     * */
     @Pointcut("execution(void com.itstudy.dao.BookDao.update())")
-    private void pt(){}
+    private void pt() {
+    }
 
     /*
-    * 通知
-    * */
+     * 通知
+     * */
     public void Method() {
         System.out.println(System.currentTimeMillis());
     }
 }
 ```
+
 绑定切入点和通知(切面), 在通知的上方描述切面, 同时声明通知类和受到spring控制:
+
 ```java
+
 @Component
 @Aspect
 public class MyAdvice {
     /*
-    * 描述切入点@Pointcut("execution(void com.itstudy.dao.BookDao.update())")
-    * @Point("execution(切入点方法返回类型 切入点包名.类名.方法名)")
-    * */
+     * 描述切入点@Pointcut("execution(void com.itstudy.dao.BookDao.update())")
+     * @Point("execution(切入点方法返回类型 切入点包名.类名.方法名)")
+     * */
     @Pointcut("execution(void com.itstudy.dao.BookDao.update())")
-    private void pt(){}
+    private void pt() {
+    }
 
     /*
-    * 通知(共性功能)
-    *
-    * 切面描述@Before("pt()")
-    * 在切入点执行之前执行下面这个方法
-    * */
+     * 通知(共性功能)
+     *
+     * 切面描述@Before("pt()")
+     * 在切入点执行之前执行下面这个方法
+     * */
     @Before("pt()")
     public void Method() {
         System.out.println(System.currentTimeMillis());
     }
 }
 ```
+
 配置文件里SpringConfing也要注解上 声明有注解开发的AOP, 即启动了AOP
+
 ```java
+
 @Configuration
 @ComponentScan("com.itstudy")
 @EnableAspectJAutoProxy
@@ -1495,7 +1633,9 @@ public class SpringConfig {
 
 }
 ```
+
 进行测试类测试
+
 ```java
 public class App {
     public static void main(String[] args) {
@@ -1505,22 +1645,28 @@ public class App {
     }
 }
 ```
+
 没有AOP之前, 就一条语句
+
 ```
 book dao update...
 ```
+
 注解开发AOP后, update方法有了新功能
+
 ```
 1685956645269
 book dao update...
 ```
+
 ## 4. AOP工作流程
+
 1. Spring容器启动
 2. 读取所有切面配置中的切入点
 3. 初始化bean, 判定bean对应的类中的方法是否匹配到任意切入点
-   - 匹配失败, 创建对象
-   - 匹配成功, 创建原始对象(**目标对象**)的**代理对象**
-   - `System.out.println(bookDao.getClass())` 出来的结果是代理对象`class com.sun.proxy.$Proxy20`
+    - 匹配失败, 创建对象
+    - 匹配成功, 创建原始对象(**目标对象**)的**代理对象**
+    - `System.out.println(bookDao.getClass())` 出来的结果是代理对象`class com.sun.proxy.$Proxy20`
 4. 获取bean执行方法
     - 获取bean, 调用方法并执行, 完成操作
     - 获取的bean是代理对象时, 根据代理对象的运行模式运行原始方法与增强的内容, 完成操作
@@ -1528,6 +1674,7 @@ book dao update...
 SpringAOP本质: 代理模式
 
 ## 5. AOP切入点表达式
+
 描述方式一: 执行com.itstudy.dao包下的BookDao接口中的无参数update方法
 
 `@Pointcut("execution(void com.itstudy.dao.BookDao.update())")`
@@ -1537,9 +1684,11 @@ SpringAOP本质: 代理模式
 `@Pointcut("execution(void com.itstudy.dao.impl.BookDaoImpl.update())")`
 
 ### (1). 语法格式
+
 标准格式: 动作关键字(访问修饰符 返回值类型 包名.类/接口名.方法名(参数) 异常名)
 
-`execution(public User com.itstudy.service.UserService.fingdById(int))`  
+`execution(public User com.itstudy.service.UserService.fingdById(int))`
+
 - 动作关键字execution: 执行
 - 访问修饰符: public(可以省略)
 - 返回值类型: User
@@ -1548,35 +1697,43 @@ SpringAOP本质: 代理模式
 - 方法名: fingdById
 - 参数类型: int
 - 异常名: 可以省略
+
 ### (2). 通配符
+
 - \* :单个独立的任意符号, 也可以独立出现, 也可以作为前缀或者后缀的匹配符出现
 
 `execution(public * com.itstudy.*.UserService.find*(*))`
 
 匹配com.itstudy包下任意包中的UserService类或接口中所有find开头的带有一个参数的方法
+
 - .. :多个连续的任意符号, 可以独立出现,常用于简化包名与参数的书写
 
 `execution(public User com..UserService.findById(..))`
 
 匹配com包下的任意包中的UserService类或接口中所有名称为findById的方法
+
 - \+ :专用于匹配子类类型(了解即可)
 
 `execution(public * *..*Service+.*(..))`
+
 ### (3). 书写技巧
- - 所有代码按照规范开发, 否则以下技巧失效
- - 描述切入点通常描述接口, 而不描述实现类
- - 访问控制修饰符针对接口开发均采用public描述(可省略)
- - 返回值类型对于增删改查使用精准类型加速匹配, 对于查询类使用*通配快速描述
- - 包名书写经量不使用..匹配, 效率过低, 常用*做单个包描述匹配, 或精准匹配
- - 接口名/类名书写名称与模块相关的采用匹配, 例如UserService书写成*Service, 绑定业务层接口名
- - 方法名书写以动词进行精准匹配, 名词采用*匹配, 例如getById书写成getBy*, selectAll书写成selectAll
- - 参数规则较为复杂, 根据业务方法灵活调整
- - 通常不使用异常作为匹配规则
+
+- 所有代码按照规范开发, 否则以下技巧失效
+- 描述切入点通常描述接口, 而不描述实现类
+- 访问控制修饰符针对接口开发均采用public描述(可省略)
+- 返回值类型对于增删改查使用精准类型加速匹配, 对于查询类使用*通配快速描述
+- 包名书写经量不使用..匹配, 效率过低, 常用*做单个包描述匹配, 或精准匹配
+- 接口名/类名书写名称与模块相关的采用匹配, 例如UserService书写成*Service, 绑定业务层接口名
+- 方法名书写以动词进行精准匹配, 名词采用*匹配, 例如getById书写成getBy*, selectAll书写成selectAll
+- 参数规则较为复杂, 根据业务方法灵活调整
+- 通常不使用异常作为匹配规则
 
 ## 6. AOP通知类型
+
 AOP通知描述了抽取的共性功能, 根据功能抽取的位置不同, 最终运行代码时要将其加入到合理的位置
 
 共五种类型:
+
 - 前置通知@Before("pt()")
 - 后置通知@After("pt()")
 - 环绕通知(重点)@Around("pt2()")
@@ -1584,17 +1741,20 @@ AOP通知描述了抽取的共性功能, 根据功能抽取的位置不同, 最�
 - 抛出异常后通知(了解)@AfterThrowing("pt2()")
 
 重点说明@Around() 环绕通知
+
 ```java
+
 @Component
 @Aspect
 public class MyAdvice {
-  /*
-   * 描述切入点@Pointcut("execution(void com.itstudy.dao.BookDao.update())")
-   * @Point("execution(切入点方法返回类型 切入点包名.类名.方法名)")
-   * */
-  @Pointcut("execution(void com.itstudy.dao.BookDao.update())")
-  private void pt() {
-  }
+    /*
+     * 描述切入点@Pointcut("execution(void com.itstudy.dao.BookDao.update())")
+     * @Point("execution(切入点方法返回类型 切入点包名.类名.方法名)")
+     * */
+    @Pointcut("execution(void com.itstudy.dao.BookDao.update())")
+    private void pt() {
+    }
+
     //@Around("pt()")
     public Object around(ProceedingJoinPoint pjp) throws Throwable {
         System.out.println("around before advice...");
@@ -1607,6 +1767,167 @@ public class MyAdvice {
     }
 }
 ```
+
 1. 环绕通知必须依赖形参ProceedingJoinPoint才能对原始方法调用
 2. 通知必须抛出异常Throwable, 因为原方法中说不定会有异常
 3. 返回值建议书写, 尽管原方法是void, Object proceed = pjp.proceed()会获取原方法的返回值, 可以return出去, 也可以return一个新值出去
+
+## 7. AOP通知获取数据
+
+原始方法含有参数和返回值, 下面将演示AOP如何获取这些
+
+```java
+
+@Repository
+public class BookDaoImpl implements BookDao {
+    @Override
+    public int findName(String name) {
+        System.out.println("name: " + name);
+        return 666;
+    }
+}
+```
+
+### (1). 获取参数
+
+所有通知类型都可以
+
+以@Befor()为例
+
+```java
+
+@Component
+@Aspect
+public class MyAdvice {
+    @Pointcut("execution(* com.itstudy.dao.BookDao.*(..))")
+    private void pt() {
+    }
+
+    @Before("pt()")
+    public void beforeFindName(JoinPoint jp) {
+        //获取参数
+        Object[] args = jp.getArgs();
+        System.out.println(Arrays.toString(args));
+        System.out.println("before advice findName...");
+    }
+}
+```
+
+对于@Around(), ProceedingJoinPoint继承了JoinPoint, 自然可以拿到参数
+
+```java
+
+@Component
+@Aspect
+public class MyAdvice {
+    @Pointcut("execution(* com.itstudy.dao.BookDao.*(..))")
+    private void pt() {
+    }
+
+    @Around("pt()")
+    public Object countTime(ProceedingJoinPoint pjp) throws Throwable {
+        Object[] args = pjp.getArgs();
+        System.out.println(Arrays.toString(args));
+        args[0] = "alen";
+
+        long start = System.currentTimeMillis();
+        for (int i = 0; i < 10000; i++) {
+            pjp.proceed(args);
+        }
+        long end = System.currentTimeMillis();
+        System.out.println("运行了" + (end - start) + "ms");
+        return pjp.proceed(args);
+    }
+}
+```
+
+这样就可以拿到原始方法传进来的参数, 也可以直接更改原始参数再传回原始方法, 结果显示参数发生了更改
+
+```
+[tom]
+name: alen
+name: alen
+...
+name: alen
+666
+```
+
+### (2). 获取返回值
+
+只有返回后通知和环绕通知可以获取
+
+需要更改注解的内容, 定义一个接收返回值的形参, 方法里也要定义同名的接收返回值的形参
+
+```java
+
+@Component
+@Aspect
+public class MyAdvice {
+    @Pointcut("execution(* com.itstudy.dao.BookDao.*(..))")
+    private void pt() {
+    }
+
+    @AfterReturning(value = "pt()", returning = "ret")
+    public void afterReturning(Object ret) {
+        System.out.println("afterReturning advice..." + ret);
+    }
+}
+```
+
+运行结果:
+
+```
+afterReturning advice...666
+```
+
+注意: 接收参数和返回值的形参是有顺序的`method(JoinPoint jp, Object ret)`
+
+### (3). 获取异常
+只有抛出异常后通知和环绕通知可以
+对于抛出异常后通知与获取返回值类型类似
+```java
+@Component
+@Aspect
+public class MyAdvice {
+    @Pointcut("execution(* com.itstudy.dao.BookDao.*(..))")
+    private void pt() {
+    }
+    @AfterThrowing(value = "pt()", throwing = "throwable")
+    public void afterThrowing(Throwable throwable) {
+        System.out.println("afterThrowing advice..." + throwable);
+    }
+}
+```
+原始方法加个异常测试`int i = 1/0;`
+
+抛出异常结果为:
+```
+name: tom
+afterThrowing advice...java.lang.ArithmeticException: / by zero
+Exception in thread "main" java.lang.ArithmeticException: / by zero
+	at com.itstudy.dao.impl.BookDaoImpl.findName(BookDaoImpl.java:30)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:566)
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:344)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:198)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163)
+	at org.springframework.aop.aspectj.AspectJAfterThrowingAdvice.invoke(AspectJAfterThrowingAdvice.java:64)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)
+	at org.springframework.aop.interceptor.ExposeInvocationInterceptor.invoke(ExposeInvocationInterceptor.java:97)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)
+	at org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:215)
+	at com.sun.proxy.$Proxy20.findName(Unknown Source)
+	at App.main(App.java:17)
+```
+
+对于环绕通知直接捕获异常
+```
+try {
+      pjp.proceed(args);
+    } catch (Throwable e) {
+        e.printStackTrace();
+}
+```
+

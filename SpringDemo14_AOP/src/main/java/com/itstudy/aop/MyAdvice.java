@@ -1,8 +1,11 @@
 package com.itstudy.aop;
 
+import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
 import org.springframework.stereotype.Component;
+
+import java.util.Arrays;
 
 /*
  * 通知类
@@ -17,13 +20,11 @@ public class MyAdvice {
      * 描述切入点@Pointcut("execution(void com.itstudy.dao.BookDao.update())")
      * @Point("execution(切入点方法返回类型 切入点包名.类名.方法名)")
      * */
-    @Pointcut("execution(void com.itstudy.dao.BookDao.update())")
+    @Pointcut("execution(* com.itstudy.dao.BookDao.*(..))")
     private void pt() {
     }
 
-    @Pointcut("execution(int com.itstudy.dao.BookDao.select())")
-    private void pt2() {
-    }
+
 
     /*
      * 通知(共性功能)
@@ -47,7 +48,7 @@ public class MyAdvice {
     }
 
     //@Around("pt()")
-    public Object around(ProceedingJoinPoint pjp) throws Throwable {
+    /*public Object around(ProceedingJoinPoint pjp) throws Throwable {
         System.out.println("around before advice...");
         //表示对原始操作的调用, 会强制抛异常
         //环绕通知必须依赖形参ProceedingJoinPoint才能对原始方法调用
@@ -55,33 +56,54 @@ public class MyAdvice {
         Object proceed = pjp.proceed();
         System.out.println("around after advice...");
         return proceed;
-    }
+    }*/
 
-    @Around("pt2()")
-    public Object aroundSelect(ProceedingJoinPoint pjp) throws Throwable {
+    //@Around("pt()")
+    /*public Object aroundSelect(ProceedingJoinPoint pjp) throws Throwable {
         System.out.println("around before advice...");
         //表示对原始操作的调用, 会强制抛异常
         Object proceed = pjp.proceed();
         System.out.println("around after advice...");
         return proceed;
+    }*/
+
+    //原始方法如果有返回值, 就装到ret这个变量里
+    //@AfterReturning(value = "pt()", returning = "ret")
+    public void afterReturning(Object ret) {
+        System.out.println("afterReturning advice..." + ret);
     }
 
-    //@AfterReturning("pt()")
-    public void afterReturning() {
-        System.out.println("afterReturning advice...");
+    //@AfterThrowing(value = "pt()", throwing = "throwable")
+    public void afterThrowing(Throwable throwable) {
+        System.out.println("afterThrowing advice..." + throwable);
     }
 
-    //@AfterThrowing("pt2()")
-    public void afterThrowing() {
-        System.out.println("afterThrowing advice...");
-    }
-
-    @Around("pt()")
+    //@Around("pt()")
     public Object countTime(ProceedingJoinPoint pjp) throws Throwable {
+        Object[] args = pjp.getArgs();
+        System.out.println(Arrays.toString(args));
+        args[0] = "alen";
+
         long start = System.currentTimeMillis();
-        Object proceed = pjp.proceed();
+        for (int i = 0; i < 10000; i++) {
+            try {
+                pjp.proceed(args);
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
+        }
         long end = System.currentTimeMillis();
         System.out.println("运行了" + (end - start) + "ms");
-        return proceed;
+        return pjp.proceed(args);
     }
+
+    //@Before("pt()")
+    public void beforeFindName(JoinPoint jp) {
+        //获取参数
+        Object[] args = jp.getArgs();
+        System.out.println(Arrays.toString(args));
+        System.out.println("before advice findName...");
+    }
+
+
 }

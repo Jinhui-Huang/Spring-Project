@@ -7,13 +7,16 @@ public class App {
     public static void main(String[] args) {
         ApplicationContext ctx = new AnnotationConfigApplicationContext(SpringConfig.class);
         BookDao bookDao = ctx.getBean(BookDao.class);
-        bookDao.update();
+        /*bookDao.update();
 
         System.out.println("==========");
 
-        /*int i = bookDao.select();
-        System.out.println(i)*/;
+        int i = bookDao.select();
+        System.out.println(i);*/
 
+        //System.out.println(bookDao.findName("tom"));
+
+        System.out.println(bookDao.confirmPassword("234 "));
 
 
     }

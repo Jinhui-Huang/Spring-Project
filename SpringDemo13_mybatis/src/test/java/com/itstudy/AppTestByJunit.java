@@ -1,6 +1,7 @@
 package com.itstudy;
 
 import com.itstudy.config.SpringConfig;
+import com.itstudy.domain.Account;
 import com.itstudy.service.AccountService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,7 +17,8 @@ public class AppTestByJunit {
 
     @Test
     public void testFindById() {
-        System.out.println(accountService.findById(18));
+        Account account = accountService.findById(18);
+        System.out.println(account);
     }
 
 }

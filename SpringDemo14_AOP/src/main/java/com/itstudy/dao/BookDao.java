@@ -5,4 +5,8 @@ public interface BookDao {
     void update();
 
     int select();
+
+    int findName(String name);
+
+    boolean confirmPassword(String password);
 }

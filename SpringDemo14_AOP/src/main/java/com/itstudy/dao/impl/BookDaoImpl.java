@@ -14,15 +14,24 @@ public class BookDaoImpl implements BookDao{
 
     @Override
     public void update() {
-        for (int i = 0; i < 10000; i++) {
             System.out.println("book dao update...");
-        }
     }
 
     @Override
     public int select() {
         System.out.println("book dao select");
-        //int i = 1/0;//异常抛出测试
+        int i = 1/0;//异常抛出测试
         return 100;
     }
-}
+
+    @Override
+    public int findName(String name) {
+        System.out.println("name: " + name);
+        //int i = 1/0; //异常测试
+        return 666;
+    }
+
+    @Override
+    public boolean confirmPassword(String password) {
+        return password.trim().equals(password);
+    }}
