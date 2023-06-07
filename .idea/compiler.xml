@@ -18,6 +18,7 @@
         <module name="SpringDemo06" />
         <module name="SpringDemo05" />
         <module name="SpringDemo04" />
+        <module name="SpringDemo15" />
         <module name="SpringDemo08_datasource" />
         <module name="SpringDemo10" />
         <module name="SpringDemo13_mybatis" />
